@@ -2,15 +2,14 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trình chỉnh ảnh Y2K Ultimate</title>
+    <title>Trình chỉnh ảnh Y2K - Bản Hoàn Thiện</title>
     <style>
         body { 
             font-family: 'Courier New', Courier, monospace; 
-            background: #111; color: #ff00ff; 
-            text-align: center; padding: 10px; 
-            margin: 0;
+            background: #111; color: #ff99cc; /* Đổi màu chữ chủ đạo sang tone hồng pastel */
+            text-align: center; padding: 10px; margin: 0;
         }
-        h1 { text-shadow: 2px 2px #00ffff; margin-bottom: 5px; }
+        h1 { text-shadow: 2px 2px #fff; margin-bottom: 5px; color: #ff00ff;}
         .toolbar {
             display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
             max-width: 1000px; margin: 0 auto;
@@ -19,75 +18,80 @@
             background: #222; padding: 10px; border: 1px solid #ff00ff;
             border-radius: 8px; flex: 1 1 300px; text-align: left;
         }
-        .panel h3 { margin-top: 0; color: #00ffff; font-size: 16px; border-bottom: 1px dashed #00ffff; padding-bottom: 5px;}
-        button, input[type="file"], input[type="text"], input[type="range"] { 
+        .panel h3 { margin-top: 0; color: #ff99cc; font-size: 16px; border-bottom: 1px dashed #ff00ff; padding-bottom: 5px;}
+        button, input[type="file"], input[type="text"], input[type="range"], select { 
             padding: 6px 10px; margin: 3px; font-family: inherit; 
-            background: #000; color: #00ffff; border: 1px solid #00ffff; 
+            background: #000; color: #ff99cc; border: 1px solid #ff99cc; 
             cursor: pointer; font-weight: bold; border-radius: 4px;
         }
-        button:hover { background: #00ffff; color: #000; }
+        button:hover { background: #ff99cc; color: #000; }
         button:disabled { border-color: #555; color: #555; cursor: not-allowed; background: #222; }
-        .sticker-btn { font-size: 18px; background: #333; }
-        .active { background: #ff00ff; color: #000; border-color: #ff00ff;}
+        .sticker-btn { font-size: 18px; background: #333; border: 1px solid transparent;}
+        .active { background: #ff00ff; color: #000; border-color: #fff;}
+        .shortcut-hint { font-size: 10px; color: #888; display: block; margin-top: 5px;}
         
-        #canvas-container {
-            margin-top: 20px; overflow: auto; max-height: 70vh;
-        }
-        canvas { 
-            border: 3px solid #00ffff; background: #000;
-            cursor: crosshair; max-width: 100%;
-        }
-        .slider-container { display: flex; align-items: center; font-size: 12px; gap: 5px; margin-top: 5px;}
+        #canvas-container { margin-top: 20px; overflow: auto; max-height: 70vh; }
+        canvas { border: 3px solid #ff00ff; background: #000; cursor: crosshair; max-width: 100%; }
+        .flex-row { display: flex; align-items: center; font-size: 12px; gap: 5px; margin-top: 5px; flex-wrap: wrap;}
     </style>
 </head>
 <body>
 
-    <h1>🚀 Y2K PHOTO EDITOR ULTIMATE 🚀</h1>
+    <h1>🎀 Y2K PHOTO STUDIO 🎀</h1>
     
     <div class="toolbar">
         <div class="panel">
             <h3>1. Tệp & Lịch sử</h3>
             <input type="file" id="upload" accept="image/*" style="max-width: 200px;">
-            <button onclick="downloadImage()">💾 Tải về</button>
+            <button onclick="downloadImage()">💾 Lưu</button>
             <br>
             <button id="btnUndo" onclick="undo()" disabled>⏪ Undo</button>
             <button id="btnRedo" onclick="redo()" disabled>⏩ Redo</button>
             <button onclick="resetImage()">🔄 Ảnh gốc</button>
+            <span class="shortcut-hint">Mẹo: Bấm Ctrl+Z để Undo, Ctrl+Y để Redo (Xóa sticker vừa dán)</span>
         </div>
 
         <div class="panel">
-            <h3>2. Cắt xén & Bộ lọc</h3>
-            <button onclick="cropSquare()">✂️ Cắt Vuông 1:1</button>
-            <button onclick="applyInvert()">Ngược Sáng (Invert)</button>
-            <button onclick="applyNoise()">Hạt Nhiễu (Noise)</button>
-            <button onclick="applyPixelate(8)">Rỗ Pixel</button>
-            <button onclick="applyGlitch()">Nhiễu VHS</button>
+            <h3>2. Bộ lọc ảnh (Filters)</h3>
+            <button onclick="applyPinkTone()">🎀 Tone Hồng Coquette</button>
+            <button onclick="applySparkle()">✨ Lấp lánh</button>
+            <button onclick="applyGlitch()">📺 Nhiễu VHS</button>
+            <button onclick="applyNoise()">📻 Hạt Nhiễu</button>
+            <button onclick="applyPixelate(8)">🕹️ Rỗ Pixel</button>
             <br>
-            <label style="font-size: 12px; color: #fff;">🎨 Bảng màu:</label>
+            <label style="font-size: 12px; color: #fff;">🎨 Ép màu:</label>
             <button onclick="applyPalette('y2k')">Vaporwave</button>
             <button onclick="applyPalette('gameboy')">GameBoy</button>
         </div>
 
         <div class="panel">
-            <h3>3. Sticker & Khung thoại</h3>
+            <h3>3. Trang trí (Sticker/Chữ)</h3>
             <div style="margin-bottom: 5px;">
+                <button class="sticker-btn" onclick="selectTool(this, 'sticker', '🎀')">🎀</button>
                 <button class="sticker-btn" onclick="selectTool(this, 'sticker', '🦋')">🦋</button>
                 <button class="sticker-btn" onclick="selectTool(this, 'sticker', '💿')">💿</button>
-                <button class="sticker-btn" onclick="selectTool(this, 'sticker', '👾')">👾</button>
-                <button class="sticker-btn" onclick="selectTool(this, 'sticker', '💾')">💾</button>
+                <button class="sticker-btn" onclick="selectTool(this, 'sticker', '🍒')">🍒</button>
                 <button class="sticker-btn" onclick="selectTool(this, 'sticker', '🩹')">🩹</button>
-                <button class="sticker-btn" onclick="selectTool(this, 'sticker', '💖')">💖</button>
-            </div>
-            <div class="slider-container">
-                <label>Cỡ Sticker:</label>
-                <input type="range" id="stickerSize" min="20" max="200" value="60">
+                <button class="sticker-btn" onclick="selectTool(this, 'sticker', '✨')">✨</button>
+                <button onclick="selectTool(this, 'none')">❌ Tắt</button>
             </div>
             
-            <div style="margin-top: 10px; border-top: 1px dashed #555; padding-top: 5px;">
-                <input type="text" id="textInput" placeholder="Nhập chữ ở đây..." style="width: 120px;">
-                <button id="btnText" onclick="selectTool(this, 'text')">🔤 Chèn Chữ</button>
-                <button id="btnBubble" onclick="selectTool(this, 'bubble')">💭 Khung thoại</button>
-                <button onclick="selectTool(this, 'none')">❌ Tắt dán</button>
+            <div class="flex-row">
+                <label>Kích cỡ:</label>
+                <input type="range" id="stickerSize" min="20" max="200" value="60">
+            </div>
+
+            <div class="flex-row" style="margin-top: 10px; border-top: 1px dashed #555; padding-top: 5px;">
+                <input type="text" id="textInput" placeholder="Nhập chữ..." style="width: 100px;">
+                <button id="btnText" onclick="selectTool(this, 'text')">Chữ</button>
+                <button id="btnBubble" onclick="selectTool(this, 'bubble')">Khung</button>
+                
+                <select id="stickerEffect">
+                    <option value="none">Hiệu ứng dán: Gốc</option>
+                    <option value="neon">Phát sáng Neon</option>
+                    <option value="shadow">Đổ bóng đen</option>
+                    <option value="blur">Mờ ảo</option>
+                </select>
             </div>
         </div>
     </div>
@@ -101,14 +105,26 @@
         const ctx = canvas.getContext('2d');
         let img = new Image();
         
-        // Trạng thái công cụ
-        let currentMode = 'none'; // 'none', 'sticker', 'text', 'bubble'
+        let currentMode = 'none'; 
         let currentSticker = '';
-
-        // Hệ thống Lịch sử (Undo/Redo)
         let history = [];
         let historyStep = -1;
-        const maxHistory = 15; // Giới hạn lưu 15 bước để không nặng máy
+        const maxHistory = 20; // Tăng giới hạn Undo lên 20 bước
+
+        // --- LẮNG NGHE PHÍM TẮT (KEYBOARD SHORTCUTS) ---
+        document.addEventListener('keydown', function(e) {
+            // Ngăn chặn hành vi mặc định nếu lỡ bấm khi đang nhập text
+            if (e.target.tagName === 'INPUT' && e.target.type === 'text') return;
+
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            }
+            if (e.ctrlKey && (e.key === 'y' || (e.shiftKey && e.key === 'Z'))) {
+                e.preventDefault();
+                redo();
+            }
+        });
 
         // Tải ảnh
         document.getElementById('upload').addEventListener('change', function(e) {
@@ -116,55 +132,30 @@
             const reader = new FileReader();
             reader.onload = function(event) {
                 img.onload = function() {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+                    canvas.width = img.width; canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
-                    // Xóa lịch sử cũ và lưu bước đầu tiên
-                    history = [];
-                    historyStep = -1;
-                    saveState();
+                    history = []; historyStep = -1; saveState();
                 }
                 img.src = event.target.result;
             }
             if(file) reader.readAsDataURL(file);
         });
 
-        // --- HỆ THỐNG UNDO / REDO ---
         function saveState() {
             historyStep++;
-            // Nếu đang ở giữa lịch sử mà vẽ thêm, xóa tương lai đi
-            if (historyStep < history.length) {
-                history.length = historyStep;
-            }
-            history.push(canvas.toDataURL("image/png")); // Lưu trạng thái canvas thành ảnh dạng chuỗi (base64)
-            
-            // Xóa bớt lịch sử cũ nếu quá dài
-            if (history.length > maxHistory) {
-                history.shift();
-                historyStep--;
-            }
+            if (historyStep < history.length) history.length = historyStep;
+            history.push(canvas.toDataURL("image/png"));
+            if (history.length > maxHistory) { history.shift(); historyStep--; }
             updateUndoRedoButtons();
         }
 
-        function undo() {
-            if (historyStep > 0) {
-                historyStep--;
-                restoreState();
-            }
-        }
-
-        function redo() {
-            if (historyStep < history.length - 1) {
-                historyStep++;
-                restoreState();
-            }
-        }
+        function undo() { if (historyStep > 0) { historyStep--; restoreState(); } }
+        function redo() { if (historyStep < history.length - 1) { historyStep++; restoreState(); } }
 
         function restoreState() {
             let imgState = new Image();
             imgState.onload = function() {
-                canvas.width = imgState.width; // Phục hồi cả kích thước (quan trọng khi Crop)
-                canvas.height = imgState.height;
+                canvas.width = imgState.width; canvas.height = imgState.height;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(imgState, 0, 0);
                 updateUndoRedoButtons();
@@ -179,59 +170,42 @@
 
         function resetImage() {
             if (!img.src) return;
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            saveState();
-        }
-
-        // --- CẮT ẢNH VÀ XUẤT ẢNH ---
-        function cropSquare() {
-            if (!img.src) return;
-            const size = Math.min(canvas.width, canvas.height); // Lấy cạnh nhỏ nhất
-            const startX = (canvas.width - size) / 2;
-            const startY = (canvas.height - size) / 2;
-            
-            // Tạo canvas ảo để cắt
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = size;
-            tempCanvas.height = size;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            // Vẽ phần ảnh giữa sang canvas ảo
-            tempCtx.drawImage(canvas, startX, startY, size, size, 0, 0, size, size);
-            
-            // Cập nhật lại canvas chính
-            canvas.width = size;
-            canvas.height = size;
-            ctx.drawImage(tempCanvas, 0, 0);
-            saveState();
+            canvas.width = img.width; canvas.height = img.height;
+            ctx.drawImage(img, 0, 0); saveState();
         }
 
         function downloadImage() {
-            if (!img.src) { alert("Chưa có ảnh!"); return; }
-            const link = document.createElement('y2k-image');
-            link.download = 'y2k_photo.png';
+            if (!img.src) return;
+            const link = document.createElement('a');
+            link.download = 'y2k_aesthetic.png';
             link.href = canvas.toDataURL("image/png");
             link.click();
         }
 
-        // --- CÁC HÀM FILTER & PALETTE MỚI ---
-        
-        function applyInvert() { // Hiệu ứng âm bản
+        // --- CÁC HÀM FILTER MỚI ---
+
+        // Tone Hồng Coquette: Tăng kênh Red, giảm kênh Green, tăng nhẹ kênh Blue
+        function applyPinkTone() {
             processPixels((data, i) => {
-                data[i] = 255 - data[i];
-                data[i+1] = 255 - data[i+1];
-                data[i+2] = 255 - data[i+2];
+                data[i] = Math.min(255, data[i] * 1.2 + 20);     // Red
+                data[i+1] = data[i+1] * 0.85;                    // Green
+                data[i+2] = Math.min(255, data[i+2] * 1.1 + 10); // Blue
             });
         }
 
-        function applyNoise() { // Thêm nhiễu hột (Grain)
+        // Hiệu ứng Lấp lánh (Sparkle/Glitter): Biến các pixel ngẫu nhiên thành màu trắng sáng
+        function applySparkle() {
             processPixels((data, i) => {
-                const noise = (Math.random() - 0.5) * 50; // Random từ -25 đến 25
-                data[i] += noise;
-                data[i+1] += noise;
-                data[i+2] += noise;
+                if (Math.random() < 0.04) { // 4% số pixel trên ảnh sẽ phát sáng
+                    data[i] = 255; data[i+1] = 255; data[i+2] = 255; 
+                }
+            });
+        }
+
+        function applyNoise() {
+            processPixels((data, i) => {
+                const noise = (Math.random() - 0.5) * 60;
+                data[i] += noise; data[i+1] += noise; data[i+2] += noise;
             });
         }
 
@@ -253,15 +227,14 @@
                     }
                 }
             }
-            ctx.putImageData(imageData, 0, 0);
-            saveState();
+            ctx.putImageData(imageData, 0, 0); saveState();
         }
 
         function applyGlitch() {
             if (!img.src) return;
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
-            const shiftPixels = 15;
+            const shiftPixels = 20;
             const copyData = new Uint8ClampedArray(data);
             for (let y = 0; y < canvas.height; y++) {
                 for (let x = 0; x < canvas.width; x++) {
@@ -270,26 +243,18 @@
                     if (x - shiftPixels >= 0) data[i + 2] = copyData[i - shiftPixels * 4 + 2];
                 }
             }
-            ctx.putImageData(imageData, 0, 0);
-            saveState();
+            ctx.putImageData(imageData, 0, 0); saveState();
         }
 
         function applyPalette(type) {
             const palettes = {
-                y2k: [
-                    {r: 255, g: 0, b: 255}, {r: 0, g: 255, b: 255}, {r: 128, g: 0, b: 255}, 
-                    {r: 255, g: 255, b: 0}, {r: 20, g: 20, b: 40}, {r: 255, g: 255, b: 255}
-                ],
-                gameboy: [ // 4 sắc thái xanh lá cổ điển
-                    {r: 15, g: 56, b: 15}, {r: 48, g: 98, b: 48}, 
-                    {r: 139, g: 172, b: 15}, {r: 155, g: 188, b: 15}
-                ]
+                y2k: [{r: 255, g: 153, b: 204}, {r: 0, g: 255, b: 255}, {r: 128, g: 0, b: 255}, {r: 20, g: 20, b: 40}, {r: 255, g: 255, b: 255}],
+                gameboy: [{r: 15, g: 56, b: 15}, {r: 48, g: 98, b: 48}, {r: 139, g: 172, b: 15}, {r: 155, g: 188, b: 15}]
             };
             const pal = palettes[type];
             processPixels((data, i) => {
                 const r = data[i], g = data[i+1], b = data[i+2];
-                let minDist = Infinity;
-                let closest = pal[0];
+                let minDist = Infinity, closest = pal[0];
                 for (let j = 0; j < pal.length; j++) {
                     const dist = Math.pow(pal[j].r - r, 2) + Math.pow(pal[j].g - g, 2) + Math.pow(pal[j].b - b, 2);
                     if (dist < minDist) { minDist = dist; closest = pal[j]; }
@@ -298,33 +263,24 @@
             });
         }
 
-        // Hàm helper để duyệt mảng pixel cho gọn code
         function processPixels(logicCallback) {
             if (!img.src) return;
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                logicCallback(data, i);
-            }
-            ctx.putImageData(imageData, 0, 0);
-            saveState();
+            for (let i = 0; i < imageData.data.length; i += 4) { logicCallback(imageData.data, i); }
+            ctx.putImageData(imageData, 0, 0); saveState();
         }
 
-        // --- CÔNG CỤ TƯƠNG TÁC: STICKER, TEXT, BUBBLE ---
+        // --- CÔNG CỤ TƯƠNG TÁC (CÓ THÊM FILTER RIÊNG CHO STICKER) ---
 
         function selectTool(btn, mode, stickerVal = '') {
-            currentMode = mode;
-            currentSticker = stickerVal;
-            
-            // Highlight nút đang chọn
-            document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            currentMode = mode; currentSticker = stickerVal;
+            document.querySelectorAll('.sticker-btn, #btnText, #btnBubble').forEach(b => b.classList.remove('active'));
             if(mode !== 'none') btn.classList.add('active');
         }
 
         canvas.addEventListener('click', function(e) {
             if (currentMode === 'none' || !img.src) return;
             
-            // Tính toán vị trí chuột chính xác nếu canvas bị CSS thu nhỏ
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;   
             const scaleY = canvas.height / rect.height;  
@@ -332,58 +288,46 @@
             const y = (e.clientY - rect.top) * scaleY;
 
             const size = document.getElementById('stickerSize').value;
-            const textValue = document.getElementById('textInput').value || "Y2K!";
+            const textValue = document.getElementById('textInput').value || "Y2K";
+            const effect = document.getElementById('stickerEffect').value;
+
+            // LƯU Ý KỸ THUẬT: ctx.save() lưu trạng thái cọ vẽ để filter chỉ áp dụng cho nét vẽ tiếp theo
+            ctx.save(); 
+
+            // Áp dụng Filter riêng cho Sticker / Text
+            if (effect === 'neon') {
+                ctx.shadowColor = '#ff00ff'; ctx.shadowBlur = 20;
+            } else if (effect === 'shadow') {
+                ctx.shadowColor = '#000000'; ctx.shadowBlur = 5; ctx.shadowOffsetX = 5; ctx.shadowOffsetY = 5;
+            } else if (effect === 'blur') {
+                ctx.filter = 'blur(4px)'; // CSS Filter áp dụng trực tiếp lên Canvas API
+            }
 
             if (currentMode === 'sticker') {
-                ctx.font = `${size}px Arial`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
+                ctx.font = `${size}px Arial`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
                 ctx.fillText(currentSticker, x, y);
             } 
             else if (currentMode === 'text') {
-                ctx.font = `bold ${size}px 'Courier New', monospace`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                // Viết chữ có viền đen để nổi bật
-                ctx.fillStyle = "#ff00ff"; // Màu chữ hồng neon
-                ctx.strokeStyle = "#000000"; // Viền đen
-                ctx.lineWidth = size / 10;
-                ctx.strokeText(textValue, x, y);
-                ctx.fillText(textValue, x, y);
+                ctx.font = `bold ${size}px 'Courier New'`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                ctx.fillStyle = "#ff99cc"; ctx.strokeStyle = "#fff"; ctx.lineWidth = size / 15;
+                ctx.strokeText(textValue, x, y); ctx.fillText(textValue, x, y);
             }
             else if (currentMode === 'bubble') {
-                // Vẽ khung chữ nhật bo tròn màu trắng
-                ctx.font = `bold ${size/2}px 'Courier New'`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
+                ctx.font = `bold ${size/2}px 'Courier New'`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
                 const textMetrics = ctx.measureText(textValue);
                 const padding = parseInt(size) / 2;
-                const rectW = textMetrics.width + padding * 2;
-                const rectH = parseInt(size) + padding;
+                const rectW = textMetrics.width + padding * 2; const rectH = parseInt(size) + padding;
                 
-                ctx.fillStyle = "#ffffff";
-                ctx.strokeStyle = "#000000";
-                ctx.lineWidth = 3;
+                ctx.fillStyle = "#fff"; ctx.strokeStyle = "#ff00ff"; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.roundRect(x - rectW/2, y - rectH/2, rectW, rectH, 15); ctx.fill(); ctx.stroke();
                 
-                // Vẽ hộp
-                ctx.beginPath();
-                ctx.roundRect(x - rectW/2, y - rectH/2, rectW, rectH, 15);
-                ctx.fill();
-                ctx.stroke();
-                
-                // Vẽ đuôi của khung thoại (tam giác nhỏ)
-                ctx.beginPath();
-                ctx.moveTo(x, y + rectH/2);
-                ctx.lineTo(x - 10, y + rectH/2 + 15);
-                ctx.lineTo(x + 10, y + rectH/2);
-                ctx.fill();
-                ctx.stroke();
-
-                // Ghi chữ đen lên trên
-                ctx.fillStyle = "#000000";
-                ctx.fillText(textValue, x, y);
+                ctx.beginPath(); ctx.moveTo(x, y + rectH/2); ctx.lineTo(x - 10, y + rectH/2 + 15); ctx.lineTo(x + 10, y + rectH/2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = "#000"; ctx.fillText(textValue, x, y);
             }
-            saveState(); // Ghi nhận lịch sử sau khi vẽ
+
+            // Xóa bộ lọc cọ vẽ để không ảnh hưởng đến các lần vẽ sau
+            ctx.restore(); 
+            saveState(); 
         });
 
     </script>
